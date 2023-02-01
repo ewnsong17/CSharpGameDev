@@ -24,5 +24,15 @@ namespace GameClient
 		{
 			InitializeComponent();
 		}
+
+		private void GameStartClick(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void GameEndClick(object sender, RoutedEventArgs e)
+		{
+			Application.Current.Shutdown();
+		}
 	}
 }
