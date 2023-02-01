@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GameClient.network;
 
 namespace GameClient
 {
@@ -20,6 +21,8 @@ namespace GameClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		public network.GameClient Instance;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -27,7 +30,8 @@ namespace GameClient
 
 		private void GameStartClick(object sender, RoutedEventArgs e)
 		{
-
+			GameStart.Visibility = Visibility.Collapsed;
+			Instance = ClientSocket.GetInstance(this);
 		}
 
 		private void GameEndClick(object sender, RoutedEventArgs e)

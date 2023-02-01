@@ -11,7 +11,7 @@
             <ImageBrush Stretch="None" ImageSource="image/game_title.jpg" AlignmentX="Center" AlignmentY="Top"/>
         </Grid.Background>
 
-        <Button Content="게임시작" HorizontalAlignment="Left" Margin="150,600,0,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameStartClick"/>
-        <Button Content="게임종료" HorizontalAlignment="Right" Margin="0,600,150,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameEndClick"/>
+        <Button Content="게임시작" Name="GameStart" HorizontalAlignment="Left" Margin="150,600,0,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameStartClick" Background="#FF38A4CD" FontSize="16"/>
+        <Button Content="게임종료" Name="GameEnd" HorizontalAlignment="Right" Margin="0,600,150,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameEndClick" Background="#FF38A4CD" FontSize="16"/>
     </Grid>
 </Window>
