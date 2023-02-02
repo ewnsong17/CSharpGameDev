@@ -5,6 +5,7 @@
         Null = -2,
         ClientConnected = 0,
         ResultPlayerExist = 1,
+        ResultGameInit = 2,
     }
 
     public enum SendHandler

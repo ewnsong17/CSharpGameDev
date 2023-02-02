@@ -1,6 +1,8 @@
 ﻿using GameServer.Network;
+using GameServer.Network.Server;
 using GameServer.Util;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,7 +15,9 @@ namespace GameServer.Client
         public Socket Socket;
         public byte[] Buffer = new byte[ServerSocket.PACKET_MAX_SIZE];
         public long LastPingTime;
-        public bool IsAlive;
+
+        //게임 관련 정보
+        public List<GameCard> CardList = new List<GameCard>();
 
         public GameClient(Socket socket)
         {

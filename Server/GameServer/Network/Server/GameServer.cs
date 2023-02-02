@@ -7,9 +7,14 @@ namespace GameServer.Network.Server
 {
 	class GameServer
 	{
-		public Tuple<GameClient, GameClient> playerPair = new Tuple<GameClient, GameClient>(null, null);
-
+		public Tuple<GameClient, GameClient> PlayerPair = new Tuple<GameClient, GameClient>(null, null);
+		public List<GameCard> CardList = new List<GameCard>();
 		public static GameServer Instance;
+
+		public GameServer()
+		{
+			InitCardList();
+		}
 
 		public static GameServer GetInstance()
 		{
@@ -21,16 +26,33 @@ namespace GameServer.Network.Server
 			return Instance;
 		}
 
+		public void InitCardList()
+		{
+			for (int color = 0; color < 3; color++)
+			{
+				for (int number = 1; number <= 13; number++)
+				{
+					var card = new GameCard
+					{
+						color = color,
+						number = number
+					};
+
+					CardList.Add(card);
+				}
+			}
+		}
+
 		public bool AddPlayer(GameClient client)
 		{
-			if (playerPair.Item1 == null)
+			if (PlayerPair.Item1 == null)
 			{
-				playerPair = new Tuple<GameClient, GameClient>(client, null);
+				PlayerPair = new Tuple<GameClient, GameClient>(client, null);
 				return true;
 			}
-			else if (playerPair.Item2 == null)
+			else if (PlayerPair.Item2 == null)
 			{
-				playerPair = new Tuple<GameClient, GameClient>(playerPair.Item1, client);
+				PlayerPair = new Tuple<GameClient, GameClient>(PlayerPair.Item1, client);
 				return true;
 			}
 
@@ -39,34 +61,73 @@ namespace GameServer.Network.Server
 
 		public void RemovePlayer(GameClient client)
 		{
-			if (playerPair.Item1 == client)
+			if (PlayerPair.Item1 == client)
 			{
-				playerPair = new Tuple<GameClient, GameClient>(null, playerPair.Item2);
+				PlayerPair = new Tuple<GameClient, GameClient>(null, PlayerPair.Item2);
 			}
-			else if (playerPair.Item2 == client)
+			else if (PlayerPair.Item2 == client)
 			{
-				playerPair = new Tuple<GameClient, GameClient>(playerPair.Item1, null);
+				PlayerPair = new Tuple<GameClient, GameClient>(PlayerPair.Item1, null);
 			}
 		}
 
 		public void Broadcast(PacketUtil pUtil)
 		{
-			if (playerPair.Item1 != null)
+			if (PlayerPair.Item1 != null)
 			{
-				playerPair.Item1.Send(pUtil);
+				PlayerPair.Item1.Send(pUtil);
 			}
 
-			if (playerPair.Item2 != null)
+			if (PlayerPair.Item2 != null)
 			{
-				playerPair.Item2.Send(pUtil);
+				PlayerPair.Item2.Send(pUtil);
 			}
 		}
 
 		public void RequestPlayerExist()
 		{
 			var pUtil = new PacketUtil(SendHandler.ResultPlayerExist);
-			pUtil.SetBool(!AddPlayer(null));
+
+			bool bGameStart = !AddPlayer(null);
+			pUtil.SetBool(bGameStart);
 			Broadcast(pUtil);
+
+			if (bGameStart)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					//플레이어에게 카드 2개씩 분배
+
+					var card = CardList[new Random().Next(CardList.Count)];
+
+					if (i < 2)
+					{
+						PlayerPair.Item1.CardList.Add(card);
+					}
+					else
+					{
+						PlayerPair.Item2.CardList.Add(card);
+					}
+				}
+
+				GameClient[] player_list = { PlayerPair .Item1, PlayerPair.Item2 };
+
+				foreach (GameClient player in player_list)
+				{
+					//자신의 카드 정보만 보낸다.
+					pUtil = new PacketUtil(SendHandler.ResultGameInit);
+
+					var list = player.CardList;
+					pUtil.SetInt(list.Count);
+					for (int i = 0; i < list.Count; i++)
+					{
+						pUtil.SetInt(list[i].color);
+						pUtil.SetInt(list[i].number);
+					}
+
+					player.Send(pUtil);
+				}
+			}
 		}
 	}
 }

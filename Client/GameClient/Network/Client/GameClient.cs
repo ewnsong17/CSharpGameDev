@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
+using GameClient.Network.Client;
 
 namespace GameClient.network
 {
@@ -12,6 +13,8 @@ namespace GameClient.network
 	{
 		private MainWindow Window;
 		public byte[] Buffer = new byte[ClientSocket.PACKET_MAX_SIZE];
+
+		public List<GameCard> CardList = new List<GameCard>();
 
 		public GameClient(MainWindow window) : base(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 		{
@@ -99,8 +102,26 @@ namespace GameClient.network
 		{
 			if (pUtil.GetBool())
 			{
-				Window.InitGameSet();
+				Window.RemoveWaitLabel();
 			}
+		}
+
+		public void ResultGameInit(PacketUtil pUtil)
+		{
+			int count = pUtil.GetInt();
+
+			for (int i = 0; i < count; i++)
+			{
+				var card = new GameCard
+				{
+					color = pUtil.GetInt(),
+					number = pUtil.GetInt()
+				};
+
+				CardList.Add(card);
+			}
+
+			Window.GameInit();
 		}
 
 		public void Send(PacketUtil pUtil)

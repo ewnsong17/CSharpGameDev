@@ -71,7 +71,6 @@ namespace GameClient
 
 						if (MyGrid.Background is ImageBrush myBrush)
 						{
-							Trace.WriteLine("OLD URI : " + myBrush.ImageSource.ToString());
 							myBrush.ImageSource = new BitmapImage(new Uri("pack://application:,,,/GameClient;component/image/game_card_back.jpg"));
 						}
 
@@ -83,7 +82,7 @@ namespace GameClient
 			);
 		}
 
-		public void InitGameSet()
+		public void RemoveWaitLabel()
 		{
 			Dispatcher.Invoke(
 				DispatcherPriority.Normal,
@@ -91,8 +90,22 @@ namespace GameClient
 					delegate
 					{
 						GameWait.Visibility = Visibility.Collapsed;
+					}
+				)
+			);
+		}
 
-						//TODO::게임 시작 서버쪽에 세팅 요청
+		public void GameInit()
+		{
+			Dispatcher.Invoke(
+				DispatcherPriority.Normal,
+				new Action(
+					delegate
+					{
+						var cardList = Instance.CardList;
+
+						//TODO:: 카드 그림 정보에 맞게 찾아서 그려주기
+//						MyGrid.Children.Add();
 					}
 				)
 			);
