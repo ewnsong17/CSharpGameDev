@@ -11,6 +11,8 @@ namespace GameServer.Network
         RequestPlayerExist = 1,
         RequestHit = 2,
         RequestStand = 3,
+        RequestRetry = 4,
+        RequestAskRetry = 5,
     }
 
     public enum SendHandler
@@ -24,5 +26,8 @@ namespace GameServer.Network
         ResultOppositeHit = 5,
         ResultStand = 6,
         ResultOppositeStand = 7,
+        ResultGameEnd = 8,
+        ResultRetry = 9,
+        ResultAskRetry = 10,
     }
 }

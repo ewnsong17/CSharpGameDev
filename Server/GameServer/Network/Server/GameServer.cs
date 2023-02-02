@@ -30,6 +30,7 @@ namespace GameServer.Network.Server
 
 		public void InitCardList()
 		{
+			CardList.Clear();
 			for (int color = 0; color < 3; color++)
 			{
 				for (int number = 1; number <= 13; number++)
@@ -114,6 +115,13 @@ namespace GameServer.Network.Server
 
 			if (bGameStart)
 			{
+				InitCardList();
+				PlayerPair.Item1.CardList.Clear();
+				PlayerPair.Item2.CardList.Clear();
+
+				PlayerPair.Item1.bStand = false;
+				PlayerPair.Item2.bStand = false;
+
 				for (int i = 0; i < 4; i++)
 				{
 					//플레이어에게 카드 2개씩 분배
@@ -165,11 +173,8 @@ namespace GameServer.Network.Server
 
 				player.CardList.Add(card);
 
-				CheckBlend(player);
-
 				var pUtil = new PacketUtil(SendHandler.ResultHit);
 
-				pUtil.SetBool(player.bBlend);
 				pUtil.SetInt(card.color);
 				pUtil.SetInt(card.number);
 
@@ -184,10 +189,7 @@ namespace GameServer.Network.Server
 
 				opposite.Send(pUtil);
 
-				if (player.bBlend)
-				{
-					CalcGameEnd();
-				}
+				CalcGameEnd(client);
 			}
 		}
 
@@ -196,11 +198,13 @@ namespace GameServer.Network.Server
 			var players = GetPlayers(client);
 			if (players != null)
 			{
-				if (!players.Item1.bStand && !players.Item1.bStand)
+				if (!players.Item1.bStand)
 				{
+					players.Item1.bStand = true;
+
 					if (players.Item1.bStand && players.Item2.bStand)
 					{
-						CalcGameEnd();
+						CalcGameEnd(client);
 					}
 					else
 					{
@@ -214,33 +218,193 @@ namespace GameServer.Network.Server
 			}
 		}
 
-		public void CheckBlend(GameClient client)
+		public void RequestGameEnd(GameClient client)
 		{
-			int cardVal = 0;
-			foreach (GameCard card in client.CardList)
+			//무승부가 아닐 경우
+			if (client != null)
 			{
-				if (card.number >= 10)
+				var players = GetPlayers(client);
+				if (players != null)
 				{
-					cardVal += 10;
+					var winner = players.Item1;
+					var loser = players.Item2;
+
+					var pUtil = new PacketUtil(SendHandler.ResultGameEnd);
+					pUtil.SetBool(false);
+					pUtil.SetBool(true);
+
+					winner.Send(pUtil);
+
+					pUtil = new PacketUtil(SendHandler.ResultGameEnd);
+					pUtil.SetBool(false);
+					pUtil.SetBool(false);
+
+					loser.Send(pUtil);
 				}
-				else if (card.number == 1)
+			}
+			else
+			{
+				var pUtil = new PacketUtil(SendHandler.ResultGameEnd);
+				pUtil.SetBool(true);
+
+				Broadcast(pUtil);
+			}
+		}
+
+		public void CalcGameEnd(GameClient client)
+		{
+			var players = GetPlayers(client);
+			if (players != null)
+			{
+				var player = players.Item1;
+
+				int cardVal = 0;
+				int aceCnt = 0;
+
+				foreach (GameCard card in player.CardList)
 				{
-					//TODO:: 1 또는 11 중 유리한 숫자로 계산
+					if (card.number >= 10)
+					{
+						cardVal += 10;
+					}
+					else if (card.number == 1)
+					{
+						//TODO:: 1 또는 11 중 유리한 숫자로 계산
+						aceCnt++;
+					}
+					else
+					{
+						cardVal += card.number;
+					}
+				}
+
+				Logger.Log(LoggerFlag.Info, string.Format("1 플레이어 일반 카드 합 : {0}", cardVal));
+
+				var player_2 = players.Item2;
+
+				int cardVal_2 = 0;
+				int aceCnt_2 = 0;
+
+				foreach (GameCard card in player_2.CardList)
+				{
+					if (card.number >= 10)
+					{
+						cardVal_2 += 10;
+					}
+					else if (card.number == 1)
+					{
+						//TODO:: 1 또는 11 중 유리한 숫자로 계산
+						aceCnt_2++;
+					}
+					else
+					{
+						cardVal_2 += card.number;
+					}
+				}
+
+				Logger.Log(LoggerFlag.Info, string.Format("2 플레이어 일반 카드 합 : {0}", cardVal_2));
+
+				if (cardVal >= 22)
+				{
+					//블렌드 : 2번 플레이어의 승리
+					RequestGameEnd(player_2);
+				}
+				else if (cardVal_2 >= 22)
+				{
+					//블렌드 : 1번 플레이어의 승리
+					RequestGameEnd(player);
 				}
 				else
 				{
-					cardVal += card.number;
+					int remain = 22 - cardVal;
+
+					for (int i = 0; i < aceCnt; i++)
+					{
+						if (remain > 10)
+						{
+							remain -= 10;
+						}
+						else if (remain > 2)
+						{
+							remain--;
+						}
+						else
+						{
+							//블렌드 : 2번 플레이어의 승리
+							RequestGameEnd(player_2);
+							return;
+						}
+					}
+
+					Logger.Log(LoggerFlag.Info, string.Format("1 플레이어 남은 카드 값 : {0}", remain));
+
+					int remain_2 = 22 - cardVal_2;
+
+					for (int i = 0; i < aceCnt_2; i++)
+					{
+						if (remain_2 > 10)
+						{
+							remain_2 -= 10;
+						}
+						else if (remain_2 > 2)
+						{
+							remain_2--;
+						}
+						else
+						{
+							//블렌드 : 1번 플레이어의 승리
+							RequestGameEnd(player);
+							return;
+						}
+					}
+
+					Logger.Log(LoggerFlag.Info, string.Format("2 플레이어 남은 카드 값 : {0}", remain_2));
+
+					if (remain > remain_2)
+					{
+						//2번 플레이어의 승리
+						RequestGameEnd(player_2);
+					}
+					else if (remain < remain_2)
+					{
+						//1번 플레이어의 승리
+						RequestGameEnd(player);
+					}
+					else
+					{
+						//무승부
+						RequestGameEnd(null);
+					}
 				}
 			}
-
-			Logger.Log(LoggerFlag.Info, string.Format("현재 총 카드 합 : {0}", cardVal));
-
-			client.bBlend = cardVal >= 22;
 		}
 
-		public void CalcGameEnd()
+		public void RequestRetry(GameClient client)
 		{
+			var players = GetPlayers(client);
+			if (players != null)
+			{
+				var player = players.Item2;
 
+				var pUtil = new PacketUtil(SendHandler.ResultRetry);
+				player.Send(pUtil);
+			}
+		}
+
+		public void RequestAskRetry(GameClient client, PacketUtil pUtil)
+		{
+			bool bRetry = pUtil.GetBool();
+
+			var players = GetPlayers(client);
+			if (players != null)
+			{
+				var player = players.Item2;
+
+				pUtil = new PacketUtil(SendHandler.ResultAskRetry);
+				pUtil.SetBool(bRetry);
+
+				player.Send(pUtil);
+			}
 		}
 	}
 }

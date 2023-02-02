@@ -102,16 +102,35 @@ namespace GameClient
 
 		public void GameInit()
 		{
+
 			Dispatcher.Invoke(
 				DispatcherPriority.Normal,
 				new Action(
 					delegate
 					{
+
+						foreach (Image image in CardImageList)
+						{
+							MyGrid.Children.Remove(image);
+						}
+
+						CardImageList.Clear();
+
+						foreach (Image image in CardImageOppositeList)
+						{
+							MyGrid.Children.Remove(image);
+						}
+
+						CardImageOppositeList.Clear();
+						Instance.bStand = false;
+
 						GameNotice.Visibility = Visibility.Visible;
 						GameNotice.Content = "원하시는 행동을 선택해주세요.";
 
 						GameHit.Visibility = Visibility.Visible;
 						GameStand.Visibility = Visibility.Visible;
+
+						GameRetry.Visibility = Visibility.Collapsed;
 
 						var cardList = Instance.CardList;
 
@@ -257,6 +276,62 @@ namespace GameClient
 					}
 				)
 			);
+		}
+
+		public void ContentGameEnd(bool bDraw, bool bWin)
+		{
+			Dispatcher.Invoke(
+				DispatcherPriority.Normal,
+				new Action(
+					delegate
+					{
+						if (bDraw)
+						{
+							GameNotice.Content = "무승부입니다.";
+						}
+						else if (bWin)
+						{
+							GameNotice.Content = "승리했습니다!";
+						}
+						else
+						{
+							GameNotice.Content = "패배했습니다.";
+
+							GameRetry.Visibility = Visibility.Visible;
+						}
+					}
+				)
+			);
+		}
+
+		public void GameRetryClick(object sender, RoutedEventArgs e)
+		{
+			GameRetry.Visibility = Visibility.Collapsed;
+
+			Instance.RequestRetryGame();
+		}
+
+		public void ContentRetry(bool bRetry)
+		{
+			if (bRetry)
+			{
+				//TODO::게임 다시 세팅
+				Instance.RequestPlayerExist();
+			}
+			else
+			{
+				Dispatcher.Invoke(
+					DispatcherPriority.Normal,
+					new Action(
+						delegate
+						{
+
+							GameNotice.Content = "상대방이 다시하기를 거절했습니다.";
+							GameRetry.Visibility = Visibility.Visible;
+						}
+					)
+				);
+			}
 		}
 	}
 }

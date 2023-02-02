@@ -17,7 +17,6 @@ namespace GameClient.network
 		public List<GameCard> CardList = new List<GameCard>();
 
 		public bool bStand = false;
-		public bool bBlend = false;
 
 		public GameClient(MainWindow window) : base(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 		{
@@ -111,6 +110,8 @@ namespace GameClient.network
 
 		public void ResultGameInit(PacketUtil pUtil)
 		{
+			CardList.Clear();
+
 			int count = pUtil.GetInt();
 
 			for (int i = 0; i < count; i++)
@@ -139,8 +140,6 @@ namespace GameClient.network
 
 		public void ResultHit(PacketUtil pUtil)
 		{
-			bBlend = pUtil.GetBool();
-
 			var card = new GameCard
 			{
 				color = pUtil.GetInt(),
@@ -149,7 +148,6 @@ namespace GameClient.network
 
 			CardList.Add(card);
 
-			//			Window.SetBlendContext();
 			Window.ReDrawCard(card);
 		}
 
@@ -168,6 +166,34 @@ namespace GameClient.network
 		public void ResultOppositeStand()
 		{
 			Window.ContentOppositeStand();
+		}
+
+		public void ResultGameEnd(PacketUtil pUtil)
+		{
+			bool bDraw = pUtil.GetBool();
+			bool bWin = pUtil.GetBool();
+
+			Window.ContentGameEnd(bDraw, bWin);
+		}
+
+		public void ResultRetry()
+		{
+			var pUtil = new PacketUtil(SendHandler.RequestAskRetry);
+			if (MessageBoxResult.Yes == MessageBox.Show("상대방이 게임을 다시하고자 합니다. 수락하시겠습니까?", "알림", MessageBoxButton.YesNo, MessageBoxImage.Question))
+			{
+				pUtil.SetBool(true);
+			}
+			else
+			{
+				pUtil.SetBool(false);
+			}
+
+			Send(pUtil);
+		}
+
+		public void ResultAskRetry(PacketUtil pUtil)
+		{
+			Window.ContentRetry(pUtil.GetBool());
 		}
 
 		public void Send(PacketUtil pUtil)
@@ -201,7 +227,7 @@ namespace GameClient.network
 
 		public void RequestHit()
 		{
-			if (!bBlend && !bStand)
+			if (!bStand)
 			{
 				var pUtil = new PacketUtil(SendHandler.RequestHit);
 				Send(pUtil);
@@ -210,13 +236,19 @@ namespace GameClient.network
 
 		public void RequestStand()
 		{
-			if (!bBlend && !bStand)
+			if (!bStand)
 			{
 				bStand = true;
 
 				var pUtil = new PacketUtil(SendHandler.RequestStand);
 				Send(pUtil);
 			}
+		}
+
+		public void RequestRetryGame()
+		{
+			var pUtil = new PacketUtil(SendHandler.RequestRetry);
+			Send(pUtil);
 		}
 	}
 }

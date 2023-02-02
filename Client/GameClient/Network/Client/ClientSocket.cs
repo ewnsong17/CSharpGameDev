@@ -56,6 +56,15 @@ namespace GameClient.network
                 case ReceiveHandler.ResultOppositeStand:
                     client.ResultOppositeStand();
                     break;
+                case ReceiveHandler.ResultGameEnd:
+                    client.ResultGameEnd(pUtil);
+                    break;
+                case ReceiveHandler.ResultRetry:
+                    client.ResultRetry();
+                    break;
+                case ReceiveHandler.ResultAskRetry:
+                    client.ResultAskRetry(pUtil);
+                    break;
                 default:
                     Trace.WriteLine(string.Format("아직 지정되지 않은 헤더입니다 : [{0} | {1}]", h, header));
                     break;

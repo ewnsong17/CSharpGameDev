@@ -41,6 +41,12 @@ namespace GameServer.Network
                 case ReceiveHandler.RequestStand:
                     Server.RequestStand(client);
                     break;
+                case ReceiveHandler.RequestRetry:
+                    Server.RequestRetry(client);
+                    break;
+                case ReceiveHandler.RequestAskRetry:
+                    Server.RequestAskRetry(client, pUtil);
+                    break;
                 default:
                     Logger.Log(LoggerFlag.Debug, string.Format("아직 지정되지 않은 헤더입니다 : [{0} | {1}]", h, header));
                     break;
