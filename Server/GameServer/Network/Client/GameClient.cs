@@ -18,7 +18,7 @@ namespace GameServer.Client
 
         //게임 관련 정보
         public List<GameCard> CardList = new List<GameCard>();
-        public bool bMyTurn = false;
+        public bool bStand = false;
 
         public GameClient(Socket socket)
         {

@@ -97,36 +97,8 @@ namespace GameClient
 			);
 		}
 
-		public void GameTimer()
-		{
-			int time = 30;
-
-			
-			while (time > 0)
-			{
-				Dispatcher.Invoke(
-					DispatcherPriority.Normal,
-					new Action(
-						delegate
-						{
-							GameTime.Visibility = Visibility.Visible;
-							GameTime.Content = time;
-						}
-					)
-				);
-
-				Thread.Sleep(1000);
-
-				time--;
-			}
-
-			
-		}
-
 		public void GameInit()
 		{
-			Thread t1 = new Thread(new ThreadStart(GameTimer));
-			t1.Start();
 
 			Dispatcher.Invoke(
 				DispatcherPriority.Normal,
@@ -134,32 +106,31 @@ namespace GameClient
 					delegate
 					{
 						GameNotice.Visibility = Visibility.Visible;
+						GameNotice.Content = "원하시는 행동을 선택해주세요.";
 
-						if (Instance.bMyTurn)
-						{
-							GameNotice.Content = "원하시는 행동을 선택해주세요.";
-						}
-						else
-						{
-							GameNotice.Content = "상대방이 행동을 고르고 있습니다..";
-						}
+						GameHit.Visibility = Visibility.Visible;
+						GameStand.Visibility = Visibility.Visible;
 
 						var cardList = Instance.CardList;
 
 						//중심 : 460, 460
 
-						int x = 60;
+						int x = 50;
 						foreach (GameCard card in cardList)
 						{
 							Image cardImage = new Image();
+
 							//내꺼 그리기
 							cardImage.Source = new BitmapImage(new Uri(card.GetURL()));
 							cardImage.Margin = new Thickness(460 - x, 600, 460 + x, 22);
 							cardImage.Stretch = Stretch.Fill;
 
+							cardImage.Name = card.GetMark() + "_" + card.number;
+
 							MyGrid.Children.Add(cardImage);
 
 							Image cardImage_o = new Image();
+
 							//상대꺼 그리기
 							cardImage_o.Source = new BitmapImage(new Uri("pack://application:,,,/GameClient;component/image/Card/back.png"));
 							cardImage_o.Margin = new Thickness(460 - x, 22, 460 + x, 600);
@@ -167,11 +138,21 @@ namespace GameClient
 
 							MyGrid.Children.Add(cardImage_o);
 
-							x = -60;
+							x = -50;
 						}
 					}
 				)
 			);
+		}
+
+		public void GameHitClick(object sender, RoutedEventArgs e)
+		{
+			Trace.WriteLine("HIT!!!");
+		}
+
+		public void GameStandClick(object sender, RoutedEventArgs e)
+		{
+			Trace.WriteLine("STAND!!");
 		}
 	}
 }

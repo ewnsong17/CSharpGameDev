@@ -9,25 +9,27 @@ namespace GameClient.Network.Client
 		public int color;
 		public int number;
 
+		public string GetMark()
+		{
+			switch (color)
+			{
+				case 0:
+					return "Clover";
+				case 1:
+					return "Diamond";
+				case 2:
+					return "Heart";
+				case 3:
+					return "Spade";
+			}
+			return null;
+		}
+
 		public string GetURL()
 		{
 			StringBuilder URL = new StringBuilder("pack://application:,,,/GameClient;component/image/Card");
 
-			switch (color)
-			{
-				case 0:
-					URL.Append("/Clover");
-					break;
-				case 1:
-					URL.Append("/Diamond");
-					break;
-				case 2:
-					URL.Append("/Heart");
-					break;
-				case 3:
-					URL.Append("/Spade");
-					break;
-			}
+			URL.Append("/" + GetMark());
 			
 			switch (number)
 			{

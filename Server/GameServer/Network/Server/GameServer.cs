@@ -116,16 +116,10 @@ namespace GameServer.Network.Server
 
 				GameClient[] player_list = { PlayerPair .Item1, PlayerPair.Item2 };
 
-				int first_turn = new Random().Next(player_list.Length);
-
-				player_list[first_turn].bMyTurn = true;
-
 				foreach (GameClient player in player_list)
 				{
 					//자신의 카드 정보만 보낸다.
 					pUtil = new PacketUtil(SendHandler.ResultGameInit);
-
-					pUtil.SetBool(player.bMyTurn);
 
 					var list = player.CardList;
 					pUtil.SetInt(list.Count);

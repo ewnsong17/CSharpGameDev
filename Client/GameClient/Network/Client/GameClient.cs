@@ -16,7 +16,7 @@ namespace GameClient.network
 
 		public List<GameCard> CardList = new List<GameCard>();
 
-		public bool bMyTurn = false;
+		public bool bStand = false;
 
 		public GameClient(MainWindow window) : base(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 		{
@@ -110,8 +110,6 @@ namespace GameClient.network
 
 		public void ResultGameInit(PacketUtil pUtil)
 		{
-			bMyTurn = pUtil.GetBool();
-
 			int count = pUtil.GetInt();
 
 			for (int i = 0; i < count; i++)
@@ -133,6 +131,8 @@ namespace GameClient.network
 			if (MessageBoxResult.OK == MessageBox.Show("상대방의 연결이 끊겼습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Error))
 			{
 				GameClosed();
+
+				Environment.Exit(0);
 			}
 		}
 
