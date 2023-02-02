@@ -17,5 +17,6 @@ namespace GameServer.Network
         ClientConnected = 0,
         ResultPlayerExist = 1,
         ResultGameInit = 2,
+        ResultOtherDisconnect = 3,
     }
 }

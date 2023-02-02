@@ -15,5 +15,8 @@
         <Button Content="게임시작" Name="GameStart" HorizontalAlignment="Left" Margin="150,600,0,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameStartClick" Background="#FF38A4CD" FontSize="16"/>
         <Button Content="게임종료" Name="GameEnd" HorizontalAlignment="Right" Margin="0,600,150,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameEndClick" Background="#FF38A4CD" FontSize="16"/>
         <Label Content="상대방을 기다리는 중입니다..." Name="GameWait" HorizontalAlignment="Center" Margin="0,80,0,0" VerticalAlignment="Top" FontSize="28" Visibility="Collapsed"/>
+        <Label Content="" Name="GameTime" HorizontalAlignment="Center" Margin="0,310,0,0" VerticalAlignment="Top" FontSize="22" Visibility="Collapsed"/>
+        <Label Content="" Name="GameNotice" HorizontalAlignment="Center" Margin="0,342,0,0" VerticalAlignment="Top" FontSize="28" Visibility="Collapsed"/>
+
     </Grid>
 </Window>

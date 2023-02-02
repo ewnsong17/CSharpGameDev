@@ -18,6 +18,7 @@ namespace GameServer.Client
 
         //게임 관련 정보
         public List<GameCard> CardList = new List<GameCard>();
+        public bool bMyTurn = false;
 
         public GameClient(Socket socket)
         {
@@ -119,9 +120,15 @@ namespace GameServer.Client
         /// </summary>
         public void Disconnect()
         {
-            var Server = Network.Server.GameServer.GetInstance();
+            var server = Network.Server.GameServer.GetInstance();
 
-            Server.RemovePlayer(this);
+            var other = server.RemovePlayer(this);
+
+            if (other != null)
+            {
+                var pUtil = new PacketUtil(SendHandler.ResultOtherDisconnect);
+                other.Send(pUtil);
+            }
 
             Socket.Close();
         }
