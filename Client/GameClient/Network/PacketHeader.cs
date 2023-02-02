@@ -14,5 +14,6 @@
         Null = -2,
         ClientClosed = 0,
         RequestPlayerExist = 1,
+        RequestHit = 2,
     }
 }

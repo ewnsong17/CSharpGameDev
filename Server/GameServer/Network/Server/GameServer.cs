@@ -1,6 +1,7 @@
 ﻿using GameServer.Client;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameServer.Network.Server
@@ -41,6 +42,20 @@ namespace GameServer.Network.Server
 					CardList.Add(card);
 				}
 			}
+		}
+
+		public GameClient GetPlayer(GameClient client)
+		{
+			if (PlayerPair.Item1 == client)
+			{
+				return PlayerPair.Item1;
+			}
+			else if (PlayerPair.Item2 == client)
+			{
+				return PlayerPair.Item2;
+			}
+
+			return null;
 		}
 
 		public bool AddPlayer(GameClient client)
@@ -112,6 +127,9 @@ namespace GameServer.Network.Server
 					{
 						PlayerPair.Item2.CardList.Add(card);
 					}
+
+					//남은 카드 갯수에서 제외
+					CardList.Remove(card);
 				}
 
 				GameClient[] player_list = { PlayerPair .Item1, PlayerPair.Item2 };
@@ -132,6 +150,40 @@ namespace GameServer.Network.Server
 					player.Send(pUtil);
 				}
 			}
+		}
+
+		public void RequestHit(GameClient client)
+		{
+			var player = GetPlayer(client);
+			if (player != null)
+			{
+				var card = CardList[new Random().Next(CardList.Count)];
+
+				player.CardList.Add(card);
+
+				CheckBlend(player);
+
+				var pUtil = new PacketUtil(SendHandler.ResultHit);
+
+				pUtil.SetBool(player.bBlend);
+
+				var list = player.CardList;
+				pUtil.SetInt(list.Count);
+				for (int i = 0; i < list.Count; i++)
+				{
+					pUtil.SetInt(list[i].color);
+					pUtil.SetInt(list[i].number);
+				}
+
+				player.Send(pUtil);
+			}
+		}
+
+		public void CheckBlend(GameClient client)
+		{
+			int cardVal = client.CardList.Select(card => card.number).Sum();
+
+			client.bBlend = cardVal >= 22;
 		}
 	}
 }

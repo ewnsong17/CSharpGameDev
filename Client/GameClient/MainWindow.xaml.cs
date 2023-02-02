@@ -118,23 +118,27 @@ namespace GameClient
 						int x = 50;
 						foreach (GameCard card in cardList)
 						{
-							Image cardImage = new Image();
-
 							//내꺼 그리기
-							cardImage.Source = new BitmapImage(new Uri(card.GetURL()));
-							cardImage.Margin = new Thickness(460 - x, 600, 460 + x, 22);
-							cardImage.Stretch = Stretch.Fill;
+							Image cardImage = new Image
+							{
 
-							cardImage.Name = card.GetMark() + "_" + card.number;
+								Source = new BitmapImage(new Uri(card.GetURL())),
+								Margin = new Thickness(460 - x, 600, 460 + x, 22),
+								Stretch = Stretch.Fill,
+
+								Name = card.GetMark() + "_" + card.number
+							};
 
 							MyGrid.Children.Add(cardImage);
 
-							Image cardImage_o = new Image();
-
 							//상대꺼 그리기
-							cardImage_o.Source = new BitmapImage(new Uri("pack://application:,,,/GameClient;component/image/Card/back.png"));
-							cardImage_o.Margin = new Thickness(460 - x, 22, 460 + x, 600);
-							cardImage_o.Stretch = Stretch.Fill;
+							Image cardImage_o = new Image
+							{
+
+								Source = new BitmapImage(new Uri("pack://application:,,,/GameClient;component/image/Card/back.png")),
+								Margin = new Thickness(460 - x, 22, 460 + x, 600),
+								Stretch = Stretch.Fill
+							};
 
 							MyGrid.Children.Add(cardImage_o);
 
@@ -147,7 +151,7 @@ namespace GameClient
 
 		public void GameHitClick(object sender, RoutedEventArgs e)
 		{
-			Trace.WriteLine("HIT!!!");
+			Instance.RequestHit();
 		}
 
 		public void GameStandClick(object sender, RoutedEventArgs e)

@@ -9,6 +9,7 @@ namespace GameServer.Network
         Null = -2,
         ClientClosed = 0,
         RequestPlayerExist = 1,
+        RequestHit = 2,
     }
 
     public enum SendHandler
@@ -18,5 +19,6 @@ namespace GameServer.Network
         ResultPlayerExist = 1,
         ResultGameInit = 2,
         ResultOtherDisconnect = 3,
+        ResultHit = 4,
     }
 }

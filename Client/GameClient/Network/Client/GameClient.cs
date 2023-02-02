@@ -17,6 +17,7 @@ namespace GameClient.network
 		public List<GameCard> CardList = new List<GameCard>();
 
 		public bool bStand = false;
+		public bool bBlend = false;
 
 		public GameClient(MainWindow window) : base(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
 		{
@@ -163,6 +164,15 @@ namespace GameClient.network
 			var pUtil = new PacketUtil(SendHandler.RequestPlayerExist);
 
 			Send(pUtil);
+		}
+
+		public void RequestHit()
+		{
+			if (!bBlend)
+			{
+				var pUtil = new PacketUtil(SendHandler.RequestHit);
+				Send(pUtil);
+			}
 		}
 	}
 }
