@@ -137,6 +137,39 @@ namespace GameClient.network
 			}
 		}
 
+		public void ResultHit(PacketUtil pUtil)
+		{
+			bBlend = pUtil.GetBool();
+
+			var card = new GameCard
+			{
+				color = pUtil.GetInt(),
+				number = pUtil.GetInt()
+			};
+
+			CardList.Add(card);
+
+			//			Window.SetBlendContext();
+			Window.ReDrawCard(card);
+		}
+
+		public void ResultOppositeHit(PacketUtil pUtil)
+		{
+			int cardCount = pUtil.GetInt();
+
+			Window.ReDrawOppositeCard(cardCount);
+		}
+
+		public void ResultStand()
+		{
+			Window.ContentStand();
+		}
+
+		public void ResultOppositeStand()
+		{
+			Window.ContentOppositeStand();
+		}
+
 		public void Send(PacketUtil pUtil)
 		{
 			try
@@ -168,9 +201,20 @@ namespace GameClient.network
 
 		public void RequestHit()
 		{
-			if (!bBlend)
+			if (!bBlend && !bStand)
 			{
 				var pUtil = new PacketUtil(SendHandler.RequestHit);
+				Send(pUtil);
+			}
+		}
+
+		public void RequestStand()
+		{
+			if (!bBlend && !bStand)
+			{
+				bStand = true;
+
+				var pUtil = new PacketUtil(SendHandler.RequestStand);
 				Send(pUtil);
 			}
 		}

@@ -27,6 +27,9 @@ namespace GameClient
 	{
 		public network.GameClient Instance;
 
+		public List<Image> CardImageList = new List<Image>();
+		public List<Image> CardImageOppositeList = new List<Image>();
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -99,7 +102,6 @@ namespace GameClient
 
 		public void GameInit()
 		{
-
 			Dispatcher.Invoke(
 				DispatcherPriority.Normal,
 				new Action(
@@ -126,10 +128,11 @@ namespace GameClient
 								Margin = new Thickness(460 - x, 600, 460 + x, 22),
 								Stretch = Stretch.Fill,
 
-								Name = card.GetMark() + "_" + card.number
+								Name = card.GetMark() + "" + card.number
 							};
 
 							MyGrid.Children.Add(cardImage);
+							CardImageList.Add(cardImage);
 
 							//상대꺼 그리기
 							Image cardImage_o = new Image
@@ -141,8 +144,9 @@ namespace GameClient
 							};
 
 							MyGrid.Children.Add(cardImage_o);
+							CardImageOppositeList.Add(cardImage_o);
 
-							x = -50;
+							x -= 50;
 						}
 					}
 				)
@@ -154,9 +158,105 @@ namespace GameClient
 			Instance.RequestHit();
 		}
 
+		public void ReDrawCard(GameCard card)
+		{
+			Dispatcher.Invoke(
+				DispatcherPriority.Normal,
+				new Action(
+					delegate
+					{
+						var cardList = Instance.CardList;
+
+						//중심 : 460, 460
+
+						int x = 100 - (50 * cardList.Count);
+
+						Image cardImage = new Image
+						{
+
+							Source = new BitmapImage(new Uri(card.GetURL())),
+							Margin = new Thickness(460 - x, 600, 460 + x, 22),
+							Stretch = Stretch.Fill,
+
+							Name = card.GetMark() + "" + card.number
+						};
+
+						GameNotice.Content = string.Format("새 카드를 뽑았습니다 : {0}", cardImage.Name);
+
+						MyGrid.Children.Add(cardImage);
+						CardImageList.Add(cardImage);
+					}
+				)
+			);
+		}
+
+		public void ReDrawOppositeCard(int cardCount)
+		{
+			Dispatcher.Invoke(
+				DispatcherPriority.Normal,
+				new Action(
+					delegate
+					{
+						foreach (Image image in CardImageOppositeList)
+						{
+							MyGrid.Children.Remove(image);
+						}
+
+						CardImageOppositeList.Clear();
+
+						GameNotice.Content = "적이 새 카드를 뽑았습니다.";
+
+						int x = 50;
+
+						for (int i = 0; i < cardCount; i++)
+						{
+							Image cardImage_o = new Image
+							{
+
+								Source = new BitmapImage(new Uri("pack://application:,,,/GameClient;component/image/Card/back.png")),
+								Margin = new Thickness(460 - x, 22, 460 + x, 600),
+								Stretch = Stretch.Fill
+							};
+
+							MyGrid.Children.Add(cardImage_o);
+							CardImageOppositeList.Add(cardImage_o);
+
+							x -= 50;
+						}
+					}
+				)
+			);
+		}
+
 		public void GameStandClick(object sender, RoutedEventArgs e)
 		{
-			Trace.WriteLine("STAND!!");
+			Instance.RequestStand();
+		}
+
+		public void ContentStand()
+		{
+			Dispatcher.Invoke(
+				DispatcherPriority.Normal,
+				new Action(
+					delegate
+					{
+						GameNotice.Content = string.Format("상대방이 마칠 때까지 기다리는 중입니다..");
+					}
+				)
+			);
+		}
+
+		public void ContentOppositeStand()
+		{
+			Dispatcher.Invoke(
+				DispatcherPriority.Normal,
+				new Action(
+					delegate
+					{
+						GameNotice.Content = string.Format("상대방이 스탠드를 신청했습니다.");
+					}
+				)
+			);
 		}
 	}
 }

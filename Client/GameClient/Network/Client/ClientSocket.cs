@@ -44,6 +44,18 @@ namespace GameClient.network
                 case ReceiveHandler.ResultOtherDisconnect:
                     client.ResultOtherDisconnect();
                     break;
+                case ReceiveHandler.ResultHit:
+                    client.ResultHit(pUtil);
+                    break;
+                case ReceiveHandler.ResultOppositeHit:
+                    client.ResultOppositeHit(pUtil);
+                    break;
+                case ReceiveHandler.ResultStand:
+                    client.ResultStand();
+                    break;
+                case ReceiveHandler.ResultOppositeStand:
+                    client.ResultOppositeStand();
+                    break;
                 default:
                     Trace.WriteLine(string.Format("아직 지정되지 않은 헤더입니다 : [{0} | {1}]", h, header));
                     break;

@@ -1,4 +1,5 @@
 ﻿using GameServer.Client;
+using GameServer.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,15 +45,15 @@ namespace GameServer.Network.Server
 			}
 		}
 
-		public GameClient GetPlayer(GameClient client)
+		public Tuple<GameClient, GameClient> GetPlayers(GameClient client)
 		{
 			if (PlayerPair.Item1 == client)
 			{
-				return PlayerPair.Item1;
+				return PlayerPair;
 			}
 			else if (PlayerPair.Item2 == client)
 			{
-				return PlayerPair.Item2;
+				return new Tuple<GameClient, GameClient>(PlayerPair.Item2, PlayerPair.Item1);
 			}
 
 			return null;
@@ -154,9 +155,12 @@ namespace GameServer.Network.Server
 
 		public void RequestHit(GameClient client)
 		{
-			var player = GetPlayer(client);
-			if (player != null)
+			var players = GetPlayers(client);
+			if (players != null)
 			{
+				//무조건 내가 앞에 옴
+				var player = players.Item1;
+
 				var card = CardList[new Random().Next(CardList.Count)];
 
 				player.CardList.Add(card);
@@ -166,24 +170,77 @@ namespace GameServer.Network.Server
 				var pUtil = new PacketUtil(SendHandler.ResultHit);
 
 				pUtil.SetBool(player.bBlend);
-
-				var list = player.CardList;
-				pUtil.SetInt(list.Count);
-				for (int i = 0; i < list.Count; i++)
-				{
-					pUtil.SetInt(list[i].color);
-					pUtil.SetInt(list[i].number);
-				}
+				pUtil.SetInt(card.color);
+				pUtil.SetInt(card.number);
 
 				player.Send(pUtil);
+
+				//적은 무조건 뒤쪽에 옴
+				var opposite = players.Item2;
+
+				pUtil = new PacketUtil(SendHandler.ResultOppositeHit);
+
+				pUtil.SetInt(player.CardList.Count);
+
+				opposite.Send(pUtil);
+
+				if (player.bBlend)
+				{
+					CalcGameEnd();
+				}
+			}
+		}
+
+		public void RequestStand(GameClient client)
+		{
+			var players = GetPlayers(client);
+			if (players != null)
+			{
+				if (!players.Item1.bStand && !players.Item1.bStand)
+				{
+					if (players.Item1.bStand && players.Item2.bStand)
+					{
+						CalcGameEnd();
+					}
+					else
+					{
+						var pUtil = new PacketUtil(SendHandler.ResultStand);
+						players.Item1.Send(pUtil);
+
+						pUtil = new PacketUtil(SendHandler.ResultOppositeStand);
+						players.Item2.Send(pUtil);
+					}
+				}
 			}
 		}
 
 		public void CheckBlend(GameClient client)
 		{
-			int cardVal = client.CardList.Select(card => card.number).Sum();
+			int cardVal = 0;
+			foreach (GameCard card in client.CardList)
+			{
+				if (card.number >= 10)
+				{
+					cardVal += 10;
+				}
+				else if (card.number == 1)
+				{
+					//TODO:: 1 또는 11 중 유리한 숫자로 계산
+				}
+				else
+				{
+					cardVal += card.number;
+				}
+			}
+
+			Logger.Log(LoggerFlag.Info, string.Format("현재 총 카드 합 : {0}", cardVal));
 
 			client.bBlend = cardVal >= 22;
+		}
+
+		public void CalcGameEnd()
+		{
+
 		}
 	}
 }

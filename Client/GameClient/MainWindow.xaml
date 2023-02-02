@@ -20,6 +20,5 @@
         <Label Content="" Name="GameNotice" HorizontalAlignment="Center" Margin="0,342,0,0" VerticalAlignment="Top" FontSize="28" Visibility="Collapsed"/>
         <Button Content="힛" Name="GameHit" HorizontalAlignment="Left" Margin="75,375,0,0" VerticalAlignment="Top" Width="130" Height="60" Click="GameHitClick" Background="#FFCD4D31" FontSize="19" Visibility="Collapsed"/>
         <Button Content="스탠드" Name="GameStand" HorizontalAlignment="Right" Margin="0,375,75,0" VerticalAlignment="Top" Width="130" Height="60" Click="GameStandClick" Background="#FF696EC3" FontSize="19" Visibility="Collapsed"/>
-
     </Grid>
 </Window>

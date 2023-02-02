@@ -36,7 +36,10 @@ namespace GameServer.Network
                     Server.RequestPlayerExist();
                     break;
                 case ReceiveHandler.RequestHit:
-                    Server.RequestHit();
+                    Server.RequestHit(client);
+                    break;
+                case ReceiveHandler.RequestStand:
+                    Server.RequestStand(client);
                     break;
                 default:
                     Logger.Log(LoggerFlag.Debug, string.Format("아직 지정되지 않은 헤더입니다 : [{0} | {1}]", h, header));
