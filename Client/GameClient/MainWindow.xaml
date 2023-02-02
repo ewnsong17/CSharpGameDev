@@ -5,13 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameClient"
         mc:Ignorable="d"
+        Closing="GameCloseClick"
         Title="MainWindow" Height="768" Width="1024">
-    <Grid>
+    <Grid Name="MyGrid">
         <Grid.Background>
             <ImageBrush Stretch="None" ImageSource="image/game_title.jpg" AlignmentX="Center" AlignmentY="Top"/>
         </Grid.Background>
 
         <Button Content="게임시작" Name="GameStart" HorizontalAlignment="Left" Margin="150,600,0,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameStartClick" Background="#FF38A4CD" FontSize="16"/>
         <Button Content="게임종료" Name="GameEnd" HorizontalAlignment="Right" Margin="0,600,150,0" VerticalAlignment="Top" Width="250" Height="90" Click="GameEndClick" Background="#FF38A4CD" FontSize="16"/>
+        <Label Content="상대방을 기다리는 중입니다..." Name="GameWait" HorizontalAlignment="Center" Margin="0,80,0,0" VerticalAlignment="Top" FontSize="28" Visibility="Collapsed"/>
     </Grid>
 </Window>

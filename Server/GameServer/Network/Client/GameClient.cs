@@ -15,10 +15,6 @@ namespace GameServer.Client
         public long LastPingTime;
         public bool IsAlive;
 
-        /// <summary>
-        /// 클라이언트 접속 시 새 클래스 선언
-        /// </summary>
-        /// <param name="socket"></param>
         public GameClient(Socket socket)
         {
             this.Socket = socket;
@@ -27,11 +23,6 @@ namespace GameServer.Client
             Initialization();
         }
 
-        /// <summary>
-        /// 소켓을 통해 패킷을 수신 받으면, 헤더를 파싱하여 패킷별로 분류함.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void UserPacketReceived(IAsyncResult result)
         {
             try
@@ -59,7 +50,7 @@ namespace GameServer.Client
                 }
                 else
                 {
-                    Disconnect(true);
+                    Disconnect();
                 }
             }
             catch (Exception ex)
@@ -68,10 +59,6 @@ namespace GameServer.Client
             }
         }
 
-        /// <summary>
-        /// 가공된 패킷을 클라이언트로 송신하는 함수.
-        /// </summary>
-        /// <param name="pUtil"></param>
         public void Send(PacketUtil pUtil)
         {
             try
@@ -93,11 +80,6 @@ namespace GameServer.Client
             }
         }
 
-        /// <summary>
-        /// 파싱한 헤더를 Enum에서 찾아서 리턴
-        /// </summary>
-        /// <param name="header"></param>
-        /// <returns></returns>
         public static SendHandler GetHeader(int header)
         {
             foreach (SendHandler h in Enum.GetValues(typeof(SendHandler)))
@@ -118,8 +100,10 @@ namespace GameServer.Client
             IPEndPoint remoteAddr = (IPEndPoint)Socket.RemoteEndPoint;
             Logger.Log(LoggerFlag.Info, string.Format("/{0} 에서 새 유저가 서버에 접속을 시도했습니다.", remoteAddr.Address.ToString()));
 
+            var Server = Network.Server.GameServer.GetInstance();
+
             var pUtil = new PacketUtil(SendHandler.ClientConnected);
-            pUtil.SetBool(true);
+            pUtil.SetBool(Server.AddPlayer(this));
 
             this.LastPingTime = GameUtil.CurrentTimeMillis();
             //나중에 패킷 암호화 정보를 보낸다고 하면, 여기에 보내면 좋을 것 같네요.
@@ -129,9 +113,13 @@ namespace GameServer.Client
         /// <summary>
         /// 유저 접속 해제
         /// </summary>
-        public void Disconnect(bool closed = false, bool stop = false)
+        public void Disconnect()
         {
+            var Server = Network.Server.GameServer.GetInstance();
 
+            Server.RemovePlayer(this);
+
+            Socket.Close();
         }
     }
 }

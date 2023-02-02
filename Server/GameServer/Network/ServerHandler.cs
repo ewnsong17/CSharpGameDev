@@ -9,6 +9,7 @@ namespace GameServer.Network
 {
     class ServerHandler
     {
+        public static Server.GameServer Server = Network.Server.GameServer.GetInstance();
         /// <summary>
         /// 요청 받은 패킷을 헤더에 따라 적절한 핸들러로 분류하여 처리
         /// </summary>
@@ -30,6 +31,9 @@ namespace GameServer.Network
             {
                 case ReceiveHandler.ClientClosed:
                     client.Disconnect();
+                    break;
+                case ReceiveHandler.RequestPlayerExist:
+                    Server.RequestPlayerExist();
                     break;
                 default:
                     Logger.Log(LoggerFlag.Debug, string.Format("아직 지정되지 않은 헤더입니다 : [{0} | {1}]", h, header));

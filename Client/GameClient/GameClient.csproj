@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="image\game_card_back.jpg" />
     <None Remove="image\game_title.jpg" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="image\game_card_back.jpg" />
     <Resource Include="image\game_title.jpg" />
   </ItemGroup>
 

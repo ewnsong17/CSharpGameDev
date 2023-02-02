@@ -21,8 +21,18 @@ namespace GameClient.network
 
 		private void Connect(IAsyncResult result)
 		{
-			base.EndConnect(result);
-			base.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, UserPacketReceived, this);
+			try
+			{
+				base.EndConnect(result);
+				base.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, UserPacketReceived, this);
+			}
+			catch
+			{
+				if (MessageBoxResult.OK == MessageBox.Show("서버에 연결할 수 없습니다. 게임을 종료합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Error))
+				{
+					Environment.Exit(0);
+				}
+			}
 		}
 
 		private void UserPacketReceived(IAsyncResult result)
@@ -74,17 +84,52 @@ namespace GameClient.network
 			bool IsServerConnected = pUtil.GetBool();
 			if (!IsServerConnected)
 			{
-				if (MessageBoxResult.OK == MessageBox.Show("서버에 연결할 수 없습니다. 게임을 종료합니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Error))
+				if (MessageBoxResult.OK == MessageBox.Show("2인용 게임입니다. 2명 이상 참가하실 수 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Error))
 				{
-					Environment.Exit(0);
+					GameClosed();
 				}
 			}
 			else
 			{
-				//TODO::화면 전환 필요
-				Window.GameStart.Visibility = Visibility.Collapsed;
-				Window.GameEnd.Visibility = Visibility.Collapsed;
+				Window.ChangeScene();
 			}
+		}
+
+		public void ResultPlayerExist(PacketUtil pUtil)
+		{
+			if (pUtil.GetBool())
+			{
+				Window.InitGameSet();
+			}
+		}
+
+		public void Send(PacketUtil pUtil)
+		{
+			try
+			{
+				byte[] data = pUtil.GetSendData();
+				Send(data, data.Length, SocketFlags.None);
+			}
+			catch
+			{
+				Close();
+			}
+		}
+
+		public void GameClosed()
+		{
+			var pUtil = new PacketUtil(SendHandler.ClientClosed);
+			pUtil.SetBool(true);
+
+			Send(pUtil);
+
+		}
+
+		public void RequestPlayerExist()
+		{
+			var pUtil = new PacketUtil(SendHandler.RequestPlayerExist);
+
+			Send(pUtil);
 		}
 	}
 }
