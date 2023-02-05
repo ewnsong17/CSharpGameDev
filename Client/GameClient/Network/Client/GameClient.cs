@@ -173,7 +173,21 @@ namespace GameClient.network
 			bool bDraw = pUtil.GetBool();
 			bool bWin = pUtil.GetBool();
 
-			Window.ContentGameEnd(bDraw, bWin);
+			int count = pUtil.GetInt();
+			List<GameCard> cardList = new List<GameCard>();
+
+			for (int i = 0; i < count; i++)
+			{
+				cardList.Add(
+					new GameCard
+					{
+						color = pUtil.GetInt(),
+						number = pUtil.GetInt()
+					}
+				);
+			}
+
+			Window.ContentGameEnd(bDraw, bWin, cardList);
 		}
 
 		public void ResultRetry()

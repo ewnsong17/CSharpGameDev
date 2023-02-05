@@ -233,11 +233,25 @@ namespace GameServer.Network.Server
 					pUtil.SetBool(false);
 					pUtil.SetBool(true);
 
+					pUtil.SetInt(loser.CardList.Count);
+					foreach (GameCard card in loser.CardList)
+					{
+						pUtil.SetInt(card.color);
+						pUtil.SetInt(card.number);
+					}
+
 					winner.Send(pUtil);
 
 					pUtil = new PacketUtil(SendHandler.ResultGameEnd);
 					pUtil.SetBool(false);
 					pUtil.SetBool(false);
+
+					pUtil.SetInt(winner.CardList.Count);
+					foreach (GameCard card in winner.CardList)
+					{
+						pUtil.SetInt(card.color);
+						pUtil.SetInt(card.number);
+					}
 
 					loser.Send(pUtil);
 				}
@@ -320,11 +334,11 @@ namespace GameServer.Network.Server
 
 					for (int i = 0; i < aceCnt; i++)
 					{
-						if (remain > 10)
+						if (remain > 11)
 						{
-							remain -= 10;
+							remain -= 11;
 						}
-						else if (remain > 2)
+						else if (remain > 1)
 						{
 							remain--;
 						}
@@ -342,11 +356,11 @@ namespace GameServer.Network.Server
 
 					for (int i = 0; i < aceCnt_2; i++)
 					{
-						if (remain_2 > 10)
+						if (remain_2 > 11)
 						{
-							remain_2 -= 10;
+							remain_2 -= 11;
 						}
-						else if (remain_2 > 2)
+						else if (remain_2 > 1)
 						{
 							remain_2--;
 						}
@@ -360,20 +374,23 @@ namespace GameServer.Network.Server
 
 					Logger.Log(LoggerFlag.Info, string.Format("2 플레이어 남은 카드 값 : {0}", remain_2));
 
-					if (remain > remain_2)
+					if (player.bStand && player_2.bStand)
 					{
-						//2번 플레이어의 승리
-						RequestGameEnd(player_2);
-					}
-					else if (remain < remain_2)
-					{
-						//1번 플레이어의 승리
-						RequestGameEnd(player);
-					}
-					else
-					{
-						//무승부
-						RequestGameEnd(null);
+						if (remain > remain_2)
+						{
+							//2번 플레이어의 승리
+							RequestGameEnd(player_2);
+						}
+						else if (remain < remain_2)
+						{
+							//1번 플레이어의 승리
+							RequestGameEnd(player);
+						}
+						else
+						{
+							//무승부
+							RequestGameEnd(null);
+						}
 					}
 				}
 			}

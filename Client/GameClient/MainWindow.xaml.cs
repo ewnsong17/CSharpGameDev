@@ -278,13 +278,39 @@ namespace GameClient
 			);
 		}
 
-		public void ContentGameEnd(bool bDraw, bool bWin)
+		public void ContentGameEnd(bool bDraw, bool bWin, List<GameCard> cardList)
 		{
 			Dispatcher.Invoke(
 				DispatcherPriority.Normal,
 				new Action(
 					delegate
 					{
+
+						foreach (Image image in CardImageOppositeList)
+						{
+							MyGrid.Children.Remove(image);
+						}
+
+						CardImageOppositeList.Clear();
+
+						int x = 50;
+
+						for (int i = 0; i < cardList.Count; i++)
+						{
+							Image cardImage_o = new Image
+							{
+
+								Source = new BitmapImage(new Uri(cardList[i].GetURL())),
+								Margin = new Thickness(460 - x, 22, 460 + x, 600),
+								Stretch = Stretch.Fill
+							};
+
+							MyGrid.Children.Add(cardImage_o);
+							CardImageOppositeList.Add(cardImage_o);
+
+							x -= 50;
+						}
+
 						if (bDraw)
 						{
 							GameNotice.Content = "무승부입니다.";
